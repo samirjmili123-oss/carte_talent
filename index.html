@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte des Talents - Défi National</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Added file upload styling */
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f5f7fa;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        .file-upload-label:hover {
+            background: #e8ecf1;
+        }
+
+        .file-name {
+            display: block;
+            margin-top: 8px;
+            color: #667eea;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .skills-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .skills-input input {
+            flex: 1;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        /* Added delete button styling */
+        .btn-delete {
+            background: #ff4757;
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
+
+        .btn-delete:hover {
+            background: #ff3838;
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+        }
+
+        .skills-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag span {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #talentsMap {
+            min-height: 600px;
+            position: relative;
+        }
+
+        .participant-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .participant-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Added photo display styling */
+        .participant-header {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .participant-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #667eea;
+            flex-shrink: 0;
+        }
+
+        .participant-info-section {
+            flex: 1;
+        }
+
+        .participant-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .participant-info {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .participant-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .skill-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+
+        /* Added CV download link styling */
+        .cv-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background 0.3s;
+            margin-right: 8px;
+        }
+
+        .cv-link:hover {
+            background: #764ba2;
+        }
+
+        /* Added actions container for buttons */
+        .participant-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .participant-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .participant-photo {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Carte des Talents</h1>
+            <p>Défi National - Valorisons nos compétences ensemble</p>
+        </header>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>📝 Ajouter votre profil</h2>
+                <form id="talentForm">
+                    <div class="form-group">
+                        <label for="name">Nom complet *</label>
+                        <input type="text" id="name" required placeholder="Votre nom et prénom">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="region">Région *</label>
+                        <select id="region" required>
+                            <option value="">Sélectionnez votre région</option>
+                            <option value="Tunis">Tunis</option>
+                            <option value="Ariana">Ariana</option>
+                            <option value="Ben Arous">Ben Arous</option>
+                            <option value="Manouba">Manouba</option>
+                            <option value="Nabeul">Nabeul</option>
+                            <option value="Zaghouan">Zaghouan</option>
+                            <option value="Bizerte">Bizerte</option>
+                            <option value="Béja">Béja</option>
+                            <option value="Jendouba">Jendouba</option>
+                            <option value="Le Kef">Le Kef</option>
+                            <option value="Siliana">Siliana</option>
+                            <option value="Sousse">Sousse</option>
+                            <option value="Monastir">Monastir</option>
+                            <option value="Mahdia">Mahdia</option>
+                            <option value="Sfax">Sfax</option>
+                            <option value="Kairouan">Kairouan</option>
+                            <option value="Kasserine">Kasserine</option>
+                            <option value="Sidi Bouzid">Sidi Bouzid</option>
+                            <option value="Gabès">Gabès</option>
+                            <option value="Medenine">Medenine</option>
+                            <option value="Tataouine">Tataouine</option>
+                            <option value="Gafsa">Gafsa</option>
+                            <option value="Tozeur">Tozeur</option>
+                            <option value="Kebili">Kebili</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="domain">Domaine principal *</label>
+                        <input type="text" id="domain" required placeholder="Ex: Développement web, Design, Marketing...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Compétences et talents *</label>
+                        <div class="skills-input">
+                            <input type="text" id="skillInput" placeholder="Ajoutez une compétence">
+                            <button type="button" class="btn btn-small" onclick="addSkill()">Ajouter</button>
+                        </div>
+                        <div id="skillsTags" class="skills-tags"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="languages">Langues parlées</label>
+                        <input type="text" id="languages" placeholder="Ex: Arabe, Français, Anglais">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projects">Projets personnels ou professionnels</label>
+                        <textarea id="projects" placeholder="Décrivez vos projets actuels ou passés..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact">Email de contact</label>
+                        <input type="email" id="contact" placeholder="votre@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photo">Photo de profil</label>
+                        <div class="file-upload">
+                            <input type="file" id="photo" accept="image/*">
+                            <label for="photo" class="file-upload-label">
+                                📸 Cliquez pour ajouter une photo
+                                <span class="file-name" id="photoName"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cv">CV (PDF ou Document)</label>
+                        <div class="file-upload">
+                            <input type="file" id="cv" accept=".pdf,.doc,.docx">
+                            <label for="cv" class="file-upload-label">
+                                📄 Cliquez pour ajouter votre CV
+                                <span class="file-name" id="cvName"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" style="width: 100%;">✨ Rejoindre la carte des talents</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>🗺️ Carte des Talents</h2>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalParticipants">0</div>
+                        <div class="stat-label">Participants</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalSkills">0</div>
+                        <div class="stat-label">Compétences</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalRegions">0</div>
+                        <div class="stat-label">Régions</div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <div class="form-group">
+                        <label for="filterRegion">Filtrer par région</label>
+                        <select id="filterRegion" onchange="filterParticipants()">
+                            <option value="">Toutes les régions</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="talentsMap"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let participants = [];
+        let allSkills = [];
+
+        loadData();
+
+        function loadData() {
+            const saved = localStorage.getItem('talents');
+            if (saved) {
+                participants = JSON.parse(saved);
+                updateMap();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('talents', JSON.stringify(participants));
+        }
+
+        function addSkill() {
+            const input = document.getElementById('skillInput');
+            const skill = input.value.trim();
+            
+            if (skill && !allSkills.includes(skill)) {
+                allSkills.push(skill);
+                renderSkillsTags();
+                input.value = '';
+            }
+        }
+
+        function removeSkill(skill) {
+            allSkills = allSkills.filter(s => s !== skill);
+            renderSkillsTags();
+        }
+
+        function renderSkillsTags() {
+            const container = document.getElementById('skillsTags');
+            container.innerHTML = allSkills.map(skill => 
+                `<div class="tag">${skill} <span onclick="removeSkill('${skill}')">×</span></div>`
+            ).join('');
+        }
+
+        document.getElementById('photo').addEventListener('change', function(e) {
+            const name = e.target.files[0]?.name || '';
+            document.getElementById('photoName').textContent = name ? `(${name})` : '';
+        });
+
+        document.getElementById('cv').addEventListener('change', function(e) {
+            const name = e.target.files[0]?.name || '';
+            document.getElementById('cvName').textContent = name ? `(${name})` : '';
+        });
+
+        document.getElementById('skillInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addSkill();
+            }
+        });
+
+        document.getElementById('talentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (allSkills.length === 0) {
+                alert('Veuillez ajouter au moins une compétence');
+                return;
+            }
+
+            const photoInput = document.getElementById('photo');
+            const cvInput = document.getElementById('cv');
+            let photoData = null;
+            let cvData = null;
+
+            if (photoInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    photoData = event.target.result;
+                    processCVThenSubmit(cvInput, cvData);
+                };
+                reader.readAsDataURL(photoInput.files[0]);
+            } else {
+                processCVThenSubmit(cvInput, cvData);
+            }
+
+            function processCVThenSubmit(cvInput, cvData) {
+                if (cvInput.files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        cvData = event.target.result;
+                        submitParticipant(photoData, cvData);
+                    };
+                    reader.readAsDataURL(cvInput.files[0]);
+                } else {
+                    submitParticipant(photoData, cvData);
+                }
+            }
+
+            function submitParticipant(photoData, cvData) {
+                const participant = {
+                    id: Date.now(),
+                    name: document.getElementById('name').value,
+                    region: document.getElementById('region').value,
+                    domain: document.getElementById('domain').value,
+                    skills: [...allSkills],
+                    languages: document.getElementById('languages').value,
+                    projects: document.getElementById('projects').value,
+                    contact: document.getElementById('contact').value,
+                    photo: photoData,
+                    cv: cvData,
+                    cvFileName: cvInput.files.length > 0 ? cvInput.files[0].name : null,
+                    dateAdded: new Date().toISOString()
+                };
+
+                participants.push(participant);
+                saveData();
+                updateMap();
+                
+                document.getElementById('talentForm').reset();
+                document.getElementById('photoName').textContent = '';
+                document.getElementById('cvName').textContent = '';
+                allSkills = [];
+                renderSkillsTags();
+                
+                alert('✅ Votre profil a été ajouté à la carte des talents !');
+            }
+        });
+
+        function deleteParticipant(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce profil ? Cette action ne peut pas être annulée.')) {
+                participants = participants.filter(p => p.id !== id);
+                saveData();
+                updateMap();
+                alert('✅ Le profil a été supprimé avec succès.');
+            }
+        }
+
+        function updateMap() {
+            const mapContainer = document.getElementById('talentsMap');
+            const totalParticipants = participants.length;
+            
+            if (totalParticipants === 0) {
+                mapContainer.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        </svg>
+                        <h3>Aucun participant pour le moment</h3>
+                        <p>Soyez le premier à rejoindre la carte des talents !</p>
+                    </div>
+                `;
+            } else {
+                mapContainer.innerHTML = participants.map(p => `
+                    <div class="participant-card">
+                        <div class="participant-header">
+                            ${p.photo ? `<img src="${p.photo}" alt="${p.name}" class="participant-photo">` : `<div class="participant-photo" style="background: #667eea; display: flex; align-items: center; justify-content: center; color: white; font-size: 2em;">👤</div>`}
+                            <div class="participant-info-section">
+                                <div class="participant-name">${p.name}</div>
+                                <div class="participant-info">📍 ${p.region} | 💼 ${p.domain}</div>
+                                ${p.languages ? `<div class="participant-info">🗣️ ${p.languages}</div>` : ''}
+                                ${p.contact ? `<div class="participant-info">📧 ${p.contact}</div>` : ''}
+                            </div>
+                        </div>
+                        ${p.projects ? `<div class="participant-info" style="margin-top: 10px;">📋 ${p.projects}</div>` : ''}
+                        <div class="participant-skills">
+                            ${p.skills.map(skill => `<span class="skill-badge">${skill}</span>`).join('')}
+                        </div>
+                        <!-- Added actions container with delete button -->
+                        <div class="participant-actions">
+                            ${p.cv ? `<a href="${p.cv}" download="${p.cvFileName}" class="cv-link">📥 Télécharger le CV</a>` : ''}
+                            <button class="btn btn-delete btn-small" onclick="deleteParticipant(${p.id})">🗑️ Supprimer</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const uniqueSkills = new Set();
+            const uniqueRegions = new Set();
+            
+            participants.forEach(p => {
+                p.skills.forEach(s => uniqueSkills.add(s));
+                uniqueRegions.add(p.region);
+            });
+
+            document.getElementById('totalParticipants').textContent = totalParticipants;
+            document.getElementById('totalSkills').textContent = uniqueSkills.size;
+            document.getElementById('totalRegions').textContent = uniqueRegions.size;
+
+            updateFilterDropdown(uniqueRegions);
+        }
+
+        function updateFilterDropdown(regions) {
+            const select = document.getElementById('filterRegion');
+            const currentValue = select.value;
+            
+            select.innerHTML = '<option value="">Toutes les régions</option>';
+            Array.from(regions).sort().forEach(region => {
+                select.innerHTML += `<option value="${region}">${region}</option>`;
+            });
+            
+            select.value = currentValue;
+        }
+
+        function filterParticipants() {
+            const filterRegion = document.getElementById('filterRegion').value;
+            const mapContainer = document.getElementById('talentsMap');
+            
+            const filtered = filterRegion 
+                ? participants.filter(p => p.region === filterRegion)
+                : participants;
+
+            if (filtered.length === 0) {
+                mapContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Aucun participant dans cette région</h3>
+                    </div>
+                `;
+            } else {
+                mapContainer.innerHTML = filtered.map(p => `
+                    <div class="participant-card">
+                        <div class="participant-header">
+                            ${p.photo ? `<img src="${p.photo}" alt="${p.name}" class="participant-photo">` : `<div class="participant-photo" style="background: #667eea; display: flex; align-items: center; justify-content: center; color: white; font-size: 2em;">👤</div>`}
+                            <div class="participant-info-section">
+                                <div class="participant-name">${p.name}</div>
+                                <div class="participant-info">📍 ${p.region} | 💼 ${p.domain}</div>
+                                ${p.languages ? `<div class="participant-info">🗣️ ${p.languages}</div>` : ''}
+                                ${p.contact ? `<div class="participant-info">📧 ${p.contact}</div>` : ''}
+                            </div>
+                        </div>
+                        ${p.projects ? `<div class="participant-info" style="margin-top: 10px;">📋 ${p.projects}</div>` : ''}
+                        <div class="participant-skills">
+                            ${p.skills.map(skill => `<span class="skill-badge">${skill}</span>`).join('')}
+                        </div>
+                        <!-- Added delete button to filtered view as well -->
+                        <div class="participant-actions">
+                            ${p.cv ? `<a href="${p.cv}" download="${p.cvFileName}" class="cv-link">📥 Télécharger le CV</a>` : ''}
+                            <button class="btn btn-delete btn-small" onclick="deleteParticipant(${p.id})">🗑️ Supprimer</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    </script>
+</body>
+</html>
